@@ -553,6 +553,20 @@ require('lazy').setup({
           -- Rename the variable under your cursor.
           --  Most Language Servers support renaming across files, etc.
           map('grn', vim.lsp.buf.rename, '[R]e[n]ame')
+          map('grf', function()
+            local current_file = vim.api.nvim_buf_get_name(0)
+            if current_file == '' then
+              vim.notify 'Current buffer has no filename'
+              return
+            end
+            vim.ui.input({
+              prompt = 'Rename ' .. current_file .. ' to: ',
+              default = vim.fn.fnamemodify(current_file, ':t'),
+            }, function(new_file)
+              if not new_file or new_file == '' or new_file == current_file then return end
+              vim.lsp.util.rename(current_file, new_file)
+            end)
+          end, '[R]ename [F]ile')
 
           -- Execute a code action, usually your cursor needs to be on top of an error
           -- or a suggestion from your LSP for this to activate.
